@@ -1,29 +1,3 @@
-<%
-  require 'uv'
-  require 'json'
-  @counter = 0
-  def code_for(file, executable=false, show_load=true)
-    @counter += 1
-    return '' unless File.exists?("documentation/js/#{file}.js")
-    cs = File.read("documentation/coffee/#{file}.coffee")
-    js = File.read("documentation/js/#{file}.js")
-    js = js.sub(/^\/\/ generated.*?\n/i, '')
-    cshtml = Uv.parse(cs, 'xhtml', 'coffeescript', false, 'idle', false)
-    jshtml = Uv.parse(js, 'xhtml', 'javascript', false, 'idle', false)
-    append = executable  == true ? '' : "alert(#{executable});"
-    if executable and executable != true
-      cs.sub!(/(\S)\s*\Z/m, "\\1\n\nalert #{executable}")
-    end
-    run    = executable  == true ? 'run' : "run: #{executable}"
-    name   = "example#{@counter}"
-    script = "<script>window.#{name} = #{cs.to_json}</script>"
-    import = show_load ? "<div class='minibutton load' onclick='javascript: loadConsole(#{name});'>load</div>" : ''
-    button = executable ? "<div class='minibutton ok' onclick='javascript: #{js};#{append}'>#{run}</div>" : ''
-    "<div class='code'>#{cshtml}#{jshtml}#{script}#{import}#{button}<br class='clear' /></div>"
-  end
-%>
-
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,7 +5,7 @@
   <title>CoffeeScript</title>
   <link rel="canonical" href="http://coffeescript.org" />
   <link rel="stylesheet" type="text/css" href="documentation/css/docs.css" />
-  <link rel="stylesheet" type="text/css" href="documentation/css/idle.css" />
+  <link rel="stylesheet" type="text/css" href="documentation/css/tomorrow.css" />
   <link rel="shortcut icon" href="documentation/images/favicon.ico" />
 </head>
 <body>
@@ -42,12 +16,12 @@
     <a id="logo" href="#top"><img src="documentation/images/logo.png" width="225" height="39" alt="CoffeeScript" /></a>
     <div class="navigation toc">
       <div class="button">
-        Table of Contents
+        目录
       </div>
       <div class="contents menu">
-        <a href="#overview">Overview</a>
-        <a href="#installation">Installation</a>
-        <a href="#usage">Usage</a>
+        <a href="#overview">概览</a>
+        <a href="#installation">安装</a>
+        <a href="#usage">用法</a>
         <a href="#literate">Literate CoffeeScript</a>
         <a href="#language">Language Reference</a>
         <a href="#literals">Literals: Functions, Objects and Arrays</a>
@@ -75,7 +49,7 @@
     </div>
     <div class="navigation try">
       <div class="button">
-        Try CoffeeScript
+        试一试 CoffeeScript
         <div class="repl_bridge"></div>
       </div>
       <div class="contents repl_wrapper">
@@ -96,7 +70,7 @@
     </div>
     <div class="navigation annotated">
       <div class="button">
-        Annotated Source
+        代码和注释
       </div>
       <div class="contents menu">
         <a href="documentation/docs/grammar.html">Grammar Rules &mdash; src/grammar</a>
@@ -120,23 +94,21 @@
     <span class="bookmark" id="top"></span>
 
     <p>
-      <b>CoffeeScript is a little language that compiles into JavaScript.</b>
-      Underneath that awkward Java-esque patina, JavaScript has always had
-      a gorgeous heart. CoffeeScript is an attempt to expose
-      the good parts of JavaScript in a simple way.
+      <b>CoffeeScript 是一门编译到 JavaScript 的小巧语言.</b>
+      在 Java 般笨拙的外表下, JavaScript 其实是内秀.
+      CoffeeScript 是个尝试, 用简洁的方式展示 JavaScript 优秀的部分.
     </p>
 
     <p>
-      The golden rule of CoffeeScript is: <i>"It's just JavaScript"</i>. The code
-      compiles one-to-one into the equivalent JS, and there is
-      no interpretation at runtime. You can use any existing JavaScript library
-      seamlessly from CoffeeScript (and vice-versa). The compiled output is
-      readable and pretty-printed, will work in every JavaScript runtime, and tends
-      to run as fast or faster than the equivalent handwritten JavaScript.
+      CoffeeScript 的指导原则是: <b>"她仅仅是 JavaScript"</b>.
+      她的代码一一对应地编译到 JS, 不会在编译过程中进行解释.
+      已有的 JavaScript 类库可以无缝地和 CoffeeScript 搭配使用, 反之亦然.
+      编译后的代码是可读的, 且经过美化, 能在所有 JavaScript 环境中运行,
+      并且应该和对应手写的 JavaScript 一样快或者更快.
     </p>
 
     <p>
-      <b>Latest Version:</b>
+      <b>最新版本:</b>
       <a href="http://github.com/jashkenas/coffee-script/tarball/1.6.3">1.6.3</a>
     </p>
 
@@ -145,57 +117,52 @@ sudo npm install -g coffee-script</pre>
 
     <h2>
       <span id="overview" class="bookmark"></span>
-      Overview
+      概览
     </h2>
 
-    <p><i>CoffeeScript on the left, compiled JavaScript output on the right.</i></p>
+    <p>左边是 CoffeeScript, 右边是编译后的 JavaScript.</p>
 
-    <%= code_for('overview', 'cubes', false) %>
+    <%- @code_for 'overview', 'cubes', false %>
 
     <h2>
       <span id="installation" class="bookmark"></span>
-      Installation
+      安装
     </h2>
 
     <p>
-      The CoffeeScript compiler is itself
-      <a href="documentation/docs/grammar.html">written in CoffeeScript</a>,
-      using the <a href="http://jison.org">Jison parser generator</a>. The
-      command-line version of <tt>coffee</tt> is available as a
-      <a href="http://nodejs.org/">Node.js</a> utility. The
-      <a href="extras/coffee-script.js">core compiler</a> however, does not
-      depend on Node, and can be run in any JavaScript environment, or in the
-      browser (see "Try CoffeeScript", above).
+      CoffeeScript 编译器本身<a href="documentation/docs/grammar.html">是 CoffeeScript 写的</a>,
+      使用了 <a href="http://jison.org">Jison parser generator</a>.
+      命令行版本的 <tt>coffee</tt> 是一个实用的 <a href="http://nodejs.org/">Node.js</a> 工具.
+      不过<a href="extras/coffee-script.js">编译器</a>并不依赖 Node,
+      而是能做运行于任何 JavaScript 环境, 或者说在浏览器里(看上边的"试一试 CoffeeScript").
     </p>
 
     <p>
-      To install, first make sure you have a working copy of the latest stable version of
-      <a href="http://nodejs.org/">Node.js</a>, and <a href="http://npmjs.org">npm</a>
-      (the Node Package Manager). You can then install CoffeeScript with npm:
+      安装前你需要最新稳定版 <a href="http://nodejs.org/">Node.js</a>,
+      和 <a href="http://npmjs.org">npm</a> (Node Package Manager).
+      借助 npm 可以安装 CoffeeScript:
     </p>
 
     <pre>
 npm install -g coffee-script</pre>
 
     <p>
-      (Leave off the <tt>-g</tt> if you don't wish to install globally.)
+      (如果不想全局安装可以去掉 <tt>-g</tt> 选项.)
     </p>
 
     <p>
-      If you'd prefer to install the latest <b>master</b> version of CoffeeScript, you
-      can clone the CoffeeScript
-      <a href="http://github.com/jashkenas/coffee-script">source repository</a>
-      from GitHub, or download
-      <a href="http://github.com/jashkenas/coffee-script/tarball/master">the source</a> directly.
-      To install the lastest master CoffeeScript compiler with npm:
+      如果你希望安装 <b>master</b> 分支上最新的 CoffeeScript,
+      你可以从<a href="http://github.com/jashkenas/coffee-script">源码仓库</a> clone CoffeeScript,
+      或直接下载<a href="http://github.com/jashkenas/coffee-script/tarball/master">源码</a>.
+      还有通过 npm 方式安装 master 分支最新的 CoffeeScript 编译器:
     </p>
 
 <pre>
 npm install -g http://github.com/jashkenas/coffee-script/tarball/master</pre>
 
     <p>
-      Or, if you want to install to <tt>/usr/local</tt>, and don't want to use
-      npm to manage it, open the <tt>coffee-script</tt> directory and run:
+      或者你想将其安装到 <tt>/usr/local</tt>, 而不用 npm 进行管理,
+      进入 <tt>coffee-script</tt> 目录执行:
     </p>
 
   <pre>
@@ -203,109 +170,100 @@ sudo bin/cake install</pre>
 
     <h2>
       <span id="usage" class="bookmark"></span>
-      Usage
+      用法
     </h2>
 
     <p>
-      Once installed, you should have access to the <tt>coffee</tt> command,
-      which can execute scripts, compile <tt>.coffee</tt> files into <tt>.js</tt>,
-      and provide an interactive REPL. The <tt>coffee</tt> command takes the
-      following options:
+      安装之后, 应该也可以执行的 <tt>coffee</tt> 命令, 可以用来执行脚本,
+      编译 <tt>.coffee</tt> 文件到 <tt>.js</tt> 文件, 和提供一个交互式的 REPL.
+      <tt>coffee</tt> 命令有下列参数:
     </p>
 
     <table>
       <tr>
         <td><code>-c, --compile</code></td>
         <td>
-          Compile a <tt>.coffee</tt> script into a <tt>.js</tt> JavaScript file
-          of the same name.
+          编译一个 <tt>.coffee</tt> 脚本到一个同名的 <tt>.js</tt> 的 JavaScript 文件.
         </td>
       </tr>
       <tr>
         <td><code>-m, --map</code></td>
         <td>
-          Generate source maps alongside the compiled JavaScript files. Adds
-          <tt>sourceMappingURL</tt> directives to the JavaScript as well.
+          随 JavaScript 文件一起生成 source maps. 并且在 JavaScript 里加上 <tt>sourceMappingURL</tt> 指令.
         </td>
       </tr>
       <tr>
         <td width="25%"><code>-i, --interactive</code></td>
         <td>
-          Launch an interactive CoffeeScript session to try short snippets.
-          Identical to calling <tt>coffee</tt> with no arguments.
+          启动一个交互式的 CoffeeScript 回话用来尝试一些代码片段.
+          等同于执行 <tt>coffee</tt> 而不加参数.
         </td>
       </tr>
       <tr>
         <td><code>-o, --output [DIR]</code></td>
         <td>
-          Write out all compiled JavaScript files into the specified directory.
-          Use in conjunction with <tt>--compile</tt> or <tt>--watch</tt>.
+          将所有编译后的 JavaScript 文件写到指定文件夹.
+          与 <tt>--compile</tt> 或 <tt>--watch</tt> 搭配使用.
         </td>
       </tr>
       <tr>
         <td><code>-j, --join [FILE]</code></td>
         <td>
-          Before compiling, concatenate all scripts together in the order they
-          were passed, and write them into the specified file.
-          Useful for building large projects.
+          编译之前, 按参数传入顺序连接所有脚本到一起, 编译后写到指定的文件.
+          对于编译大型项目有用.
         </td>
       </tr>
       <tr>
         <td><code>-w, --watch</code></td>
         <td>
-          Watch files for changes, rerunning the specified command when any
-          file is updated.
+          监视文件改变, 任何文件更新时重新执行命令.
         </td>
       </tr>
       <tr>
         <td><code>-p, --print</code></td>
         <td>
-          Instead of writing out the JavaScript as a file, print it
-          directly to <b>stdout</b>.
+          JavaScript 直接打印到 <b>stdout</b> 而不是写到一个文件.
         </td>
       </tr>
       <tr>
         <td><code>-s, --stdio</code></td>
         <td>
-          Pipe in CoffeeScript to STDIN and get back JavaScript over STDOUT.
-          Good for use with processes written in other languages. An example:<br />
+          将 CoffeeScript 传递到 STDIN 后从 STDOUT 获取 JavaScript.
+          对其他语言写的进程有好处. 比如:<br />
           <tt>cat src/cake.coffee | coffee -sc</tt>
         </td>
       </tr>
       <tr>
         <td><code>-l, --literate</code></td>
         <td>
-          Parses the code as Literate CoffeeScript. You only need to specify
-          this when passing in code directly over <b>stdio</b>, or using some sort
-          of extension-less file name.
+          将代码作为 Literate CoffeeScript 解析.
+          只会在从 <b>stdio</b> 直接传入代码或者处理某些没有后缀的文件名需要写明这点.
         </td>
       </tr>
       <tr>
         <td><code>-e, --eval</code></td>
         <td>
-          Compile and print a little snippet of CoffeeScript directly from the
-          command line. For example:<br /><tt>coffee -e "console.log num for num in [10..1]"</tt>
+          直接从命令行编译和打印一小段 CoffeeScript. 比如:<br />
+          <tt>coffee -e "console.log num for num in [10..1]"</tt>
         </td>
       </tr>
       <tr>
         <td><code>-b, --bare</code></td>
         <td>
-          Compile the JavaScript without the
-          <a href="#lexical-scope">top-level function safety wrapper</a>.
+          编译到 JavaScript 时去掉<a href="#lexical-scope">顶层函数的包裹</a>.
         </td>
       </tr>
       <tr>
         <td><code>-t, --tokens</code></td>
         <td>
-          Instead of parsing the CoffeeScript, just lex it, and print out the
-          token stream: <tt>[IDENTIFIER square] [ASSIGN =] [PARAM_START (]</tt> ...
+          不对 CoffeeScript 进行解析, 仅仅进行 lex, 打印出 token stream:
+          <tt>[IDENTIFIER square] [ASSIGN =] [PARAM_START (]</tt> ...
         </td>
       </tr>
       <tr>
         <td><code>-n, --nodes</code></td>
         <td>
-          Instead of compiling the CoffeeScript, just lex and parse it, and print
-          out the parse tree:
+          不对 CoffeeScript 进行编译, 仅仅 lex 和解析, 打印 parse tree:
 <pre class="no_bar">
 Expressions
   Assign
@@ -319,42 +277,42 @@ Expressions
       <tr>
         <td><code>--nodejs</code></td>
         <td>
-          The <tt>node</tt> executable has some useful options you can set,
-          such as<br /> <tt>--debug</tt>, <tt>--debug-brk</tt>, <tt>--max-stack-size</tt>,
-          and <tt>--expose-gc</tt>. Use this flag to forward options directly to Node.js.
-          To pass multiple flags, use <tt>--nodejs</tt> multiple times.
+          <tt>node</tt> 命令有一些实用的参数, 比如<br />
+          <tt>--debug</tt>, <tt>--debug-brk</tt>, <tt>--max-stack-size</tt>,
+          和 <tt>--expose-gc</tt>. 用这个参数直接把参数转发到 Node.js.
+          重复使用 <tt>--nodejs</tt> 来传递多个参数.
         </td>
       </tr>
     </table>
 
     <p>
-      <b>Examples:</b>
+      <b>例子:</b>
     </p>
 
     <ul>
       <li>
-        Compile a directory tree of <tt>.coffee</tt> files in <tt>src</tt> into a parallel
-        tree of <tt>.js</tt> files in <tt>lib</tt>:<br />
+        编译一个 <tt>.coffee</tt> 文件的树形目录 <tt>src</tt> 到一个同级
+        <tt>.js</tt> 文件树形目录 <tt>lib</tt>:<br />
         <tt>coffee --compile --output lib/ src/</tt>
       </li>
       <li>
-        Watch a file for changes, and recompile it every time the file is saved:<br />
+        监视一个文件的改变, 每次文件被保证时重新编译:<br />
         <tt>coffee --watch --compile experimental.coffee</tt>
       </li>
       <li>
-        Concatenate a list of files into a single script:<br />
+        合并一组文件到单个脚本:<br />
         <tt>coffee --join project.js --compile src/*.coffee</tt>
       </li>
       <li>
-        Print out the compiled JS from a one-liner:<br />
+        从一个 one-liner 打印编译后的 JS:<br />
         <tt>coffee -bpe "alert i for i in [0..10]"</tt>
       </li>
       <li>
-        All together now, watch and recompile an entire project as you work on it:<br />
+        现在全部一起, 在你工作时监视和重复编译整个项目:<br />
         <tt>coffee -o lib/ -cw src/</tt>
       </li>
       <li>
-        Start the CoffeeScript REPL (<tt>Ctrl-D</tt> to exit, <tt>Ctrl-V</tt>for multi-line):<br />
+        运行 CoffeeScript REPL (<tt>Ctrl-D</tt> 来终止, <tt>Ctrl-V</tt> 激活多行):<br />
         <tt>coffee</tt>
       </li>
     </ul>
@@ -435,12 +393,12 @@ Expressions
       an arrow, and the function body. The empty function looks like this:
       <tt>-></tt>
     </p>
-    <%= code_for('functions', 'cube(5)') %>
+    <%- @code_for 'functions', 'cube(5)' %>
     <p>
       Functions may also have default values for arguments. Override the default
       value by passing a non-null argument.
     </p>
-    <%= code_for('default_args', 'fill("cup")') %>
+    <%- @code_for 'default_args', 'fill("cup")' %>
 
     <p>
       <span id="objects_and_arrays" class="bookmark"></span>
@@ -450,14 +408,14 @@ Expressions
       the commas are optional. Objects may be created using indentation instead
       of explicit braces, similar to <a href="http://yaml.org">YAML</a>.
     </p>
-    <%= code_for('objects_and_arrays', 'song.join(" ... ")') %>
+    <%- @code_for 'objects_and_arrays', 'song.join(" ... ")' %>
     <p>
       In JavaScript, you can't use reserved words, like <tt>class</tt>, as properties
       of an object, without quoting them as strings. CoffeeScript notices reserved words
       used as keys in objects and quotes them for you, so you don't have to worry
       about it (say, when using jQuery).
     </p>
-    <%= code_for('objects_reserved') %>
+    <%- @code_for 'objects_reserved' %>
 
     <p>
       <span id="lexical-scope" class="bookmark"></span>
@@ -466,7 +424,7 @@ Expressions
       are properly declared within lexical scope &mdash; you never need to write
       <tt>var</tt> yourself.
     </p>
-    <%= code_for('scope', 'inner') %>
+    <%- @code_for 'scope', 'inner' %>
     <p>
       Notice how all of the variable declarations have been pushed up to
       the top of the closest scope, the first time they appear.
@@ -511,7 +469,7 @@ Expressions
       is no explicit ternary statement in CoffeeScript &mdash; you simply use
       a regular <b>if</b> statement on a single line.
     </p>
-    <%= code_for('conditionals') %>
+    <%- @code_for 'conditionals' %>
 
     <p>
       <span id="splats" class="bookmark"></span>
@@ -521,7 +479,7 @@ Expressions
       splats <tt>...</tt>, both for function definition as well as invocation,
       making variable numbers of arguments a little bit more palatable.
     </p>
-    <%= code_for('splats', true) %>
+    <%- @code_for 'splats', true %>
 
     <p>
       <span id="loops" class="bookmark"></span>
@@ -532,7 +490,7 @@ Expressions
       Unlike for loops, array comprehensions are expressions, and can be returned
       and assigned.
     </p>
-    <%= code_for('array_comprehensions') %>
+    <%- @code_for 'array_comprehensions' %>
     <p>
       Comprehensions should be able to handle most places where you otherwise
       would use a loop, <b>each</b>/<b>forEach</b>, <b>map</b>, or <b>select</b>/<b>filter</b>, for example:
@@ -541,7 +499,7 @@ Expressions
       in fixed-size increments, you can use a range to specify the start and
       end of your comprehension.
     </p>
-    <%= code_for('range_comprehensions', 'countdown') %>
+    <%- @code_for 'range_comprehensions', 'countdown' %>
     <p>
       Note how because we are assigning the value of the comprehensions to a
       variable in the example above, CoffeeScript is collecting the result of
@@ -561,7 +519,7 @@ Expressions
       an object. Use <tt>of</tt> to signal comprehension over the properties of
       an object instead of the values in an array.
     </p>
-    <%= code_for('object_comprehensions', 'ages.join(", ")') %>
+    <%- @code_for 'object_comprehensions', 'ages.join(", ")' %>
     <p>
       If you would like to iterate over just the keys that are defined on the
       object itself, by adding a <tt>hasOwnProperty</tt>
@@ -574,7 +532,7 @@ Expressions
       as an expression, returning an array containing the result of each iteration
       through the loop.
     </p>
-    <%= code_for('while', 'lyrics.join("\n")') %>
+    <%- @code_for 'while', 'lyrics.join("\n")' %>
     <p>
       For readability, the <b>until</b> keyword is equivalent to <tt>while not</tt>,
       and the <b>loop</b> keyword is equivalent to <tt>while true</tt>.
@@ -586,7 +544,7 @@ Expressions
       provides the <tt>do</tt> keyword, which immediately invokes a passed function,
       forwarding any arguments.
     </p>
-    <%= code_for('do') %>
+    <%- @code_for 'do' %>
 
     <p>
       <span id="slices" class="bookmark"></span>
@@ -597,12 +555,12 @@ Expressions
       Slices indices have useful defaults. An omitted first index defaults to
       zero and an omitted second index defaults to the size of the array.
     </p>
-    <%= code_for('slices', 'middle') %>
+    <%- @code_for 'slices', 'middle' %>
     <p>
       The same syntax can be used with assignment to replace a segment of an array
       with new values, splicing it.
     </p>
-    <%= code_for('splices', 'numbers') %>
+    <%- @code_for 'splices', 'numbers' %>
     <p>
       Note that JavaScript strings are immutable, and can't be spliced.
     </p>
@@ -616,7 +574,7 @@ Expressions
       pushed down into each possible branch of execution in the function
       below.
     </p>
-    <%= code_for('expressions', 'eldest') %>
+    <%- @code_for 'expressions', 'eldest' %>
     <p>
       Even though functions will always return their final value, it's both possible
       and encouraged to return early from a function body writing out the explicit
@@ -626,19 +584,19 @@ Expressions
       Because variable declarations occur at the top of scope, assignment can
       be used within expressions, even for variables that haven't been seen before:
     </p>
-    <%= code_for('expressions_assignment', 'six') %>
+    <%- @code_for 'expressions_assignment', 'six' %>
     <p>
       Things that would otherwise be statements in JavaScript, when used
       as part of an expression in CoffeeScript, are converted into expressions
       by wrapping them in a closure. This lets you do useful things, like assign
       the result of a comprehension to a variable:
     </p>
-    <%= code_for('expressions_comprehension', 'globals') %>
+    <%- @code_for 'expressions_comprehension', 'globals' %>
     <p>
       As well as silly things, like passing a <b>try/catch</b> statement directly
       into a function call:
     </p>
-    <%= code_for('expressions_try', true) %>
+    <%- @code_for 'expressions_try', true %>
     <p>
       There are a handful of statements in JavaScript that can't be meaningfully
       converted into expressions, namely <tt>break</tt>, <tt>continue</tt>,
@@ -701,7 +659,7 @@ Expressions
       <tr><td><tt>in</tt></td><td><i><small>no JS equivalent</small></i></td></tr>
     </table>
 
-    <%= code_for('aliases') %>
+    <%- @code_for 'aliases' %>
 
     <p>
       <b class="header">The Existential Operator</b>
@@ -715,7 +673,7 @@ Expressions
       It can also be used for safer conditional assignment than <tt>||=</tt>
       provides, for cases where you may be handling numbers or strings.
     </p>
-    <%= code_for('existence', 'footprints') %>
+    <%- @code_for 'existence', 'footprints' %>
     <p>
       The accessor variant of the existential operator <tt>?.</tt> can be used to soak
       up null references in a chain of properties. Use it instead
@@ -724,7 +682,7 @@ Expressions
       result, if the chain is broken, <b>undefined</b> is returned instead of
       the <b>TypeError</b> that would be raised otherwise.
     </p>
-    <%= code_for('soaks') %>
+    <%- @code_for 'soaks' %>
     <p>
       Soaking up nulls is similar to Ruby's
       <a href="http://andand.rubyforge.org/">andand gem</a>, and to the
@@ -757,7 +715,7 @@ Expressions
       Constructor functions are named, to better support helpful stack traces.
       In the first class in the example below, <tt>this.constructor.name is "Animal"</tt>.
     </p>
-    <%= code_for('classes', true) %>
+    <%- @code_for 'classes', true %>
     <p>
       If structuring your prototypes classically isn't your cup of tea, CoffeeScript
       provides a couple of lower-level conveniences. The <tt>extends</tt> operator
@@ -766,7 +724,7 @@ Expressions
       quick access to an object's prototype; and <tt>super()</tt>
       is converted into a call against the immediate ancestor's method of the same name.
     </p>
-    <%= code_for('prototypes', '"one_two".dasherize()') %>
+    <%- @code_for 'prototypes', '"one_two".dasherize()' %>
     <p>
       Finally, class definitions are blocks of executable code, which make for interesting
       metaprogramming possibilities. Because in the context of a class definition,
@@ -786,26 +744,26 @@ Expressions
       on the right to the variables on the left. In the simplest case, it can be
       used for parallel assignment:
     </p>
-    <%= code_for('parallel_assignment', 'theBait') %>
+    <%- @code_for 'parallel_assignment', 'theBait' %>
     <p>
       But it's also helpful for dealing with functions that return multiple
       values.
     </p>
-    <%= code_for('multiple_return_values', 'forecast') %>
+    <%- @code_for 'multiple_return_values', 'forecast' %>
     <p>
       Destructuring assignment can be used with any depth of array and object nesting,
       to help pull out deeply nested properties.
     </p>
-    <%= code_for('object_extraction', 'name + " — " + street') %>
+    <%- @code_for 'object_extraction', 'name + " — " + street' %>
     <p>
       Destructuring assignment can even be combined with splats.
     </p>
-    <%= code_for('patterns_and_splats', 'contents.join("")') %>
+    <%- @code_for 'patterns_and_splats', 'contents.join("")' %>
     <p>
       Destructuring assignment is also useful when combined with class constructors
       to assign properties to your instance from an options object passed to the constructor.
     </p>
-    <%= code_for('constructor_destructuring', 'contents.join("")') %>
+    <%- @code_for 'constructor_destructuring', 'contents.join("")' %>
 
     <p>
       <span id="fat-arrow" class="bookmark"></span>
@@ -825,7 +783,7 @@ Expressions
       to use with <tt>bind</tt>. Functions created with the fat arrow are able to access
       properties of the <tt>this</tt> where they're defined.
     </p>
-    <%= code_for('fat_arrow') %>
+    <%- @code_for 'fat_arrow' %>
     <p>
       If we had used <tt>-&gt;</tt> in the callback above, <tt>@customer</tt> would
       have referred to the undefined "customer" property of the DOM element,
@@ -844,7 +802,7 @@ Expressions
       snippets of JavaScript within your CoffeeScript, you can
       use backticks to pass it straight through.
     </p>
-    <%= code_for('embedded', 'hi()') %>
+    <%- @code_for 'embedded', 'hi()' %>
 
     <p>
       <span id="switch" class="bookmark"></span>
@@ -861,12 +819,12 @@ Expressions
       values for each <b>when</b> clause. If any of the values match, the clause
       runs.
     </p>
-    <%= code_for('switch') %>
+    <%- @code_for 'switch' %>
 
     <p>
       Switch statements can also be used without a control expression, turning them in to a cleaner alternative to if/else chains.
     </p>
-    <%= code_for('switch_with_no_expression') %>
+    <%- @code_for 'switch_with_no_expression' %>
 
     <p>
       <span id="try" class="bookmark"></span>
@@ -874,7 +832,7 @@ Expressions
       Try/catch statements are just about the same as JavaScript (although
       they work as expressions).
     </p>
-    <%= code_for('try') %>
+    <%- @code_for 'try' %>
 
     <p>
       <span id="comparisons" class="bookmark"></span>
@@ -884,7 +842,7 @@ Expressions
       from Python &mdash; making it easy to test if a value falls within a
       certain range.
     </p>
-    <%= code_for('comparisons', 'healthy') %>
+    <%- @code_for 'comparisons', 'healthy' %>
 
     <p>
       <span id="strings" class="bookmark"></span>
@@ -893,18 +851,18 @@ Expressions
       strings allow for interpolated values, using <tt>#{ ... }</tt>,
       and single-quoted strings are literal.
     </p>
-    <%= code_for('interpolation', 'sentence') %>
+    <%- @code_for 'interpolation', 'sentence' %>
     <p>
       Multiline strings are allowed in CoffeeScript.
     </p>
-    <%= code_for('strings', 'mobyDick') %>
+    <%- @code_for 'strings', 'mobyDick' %>
     <p>
       Block strings can be used to hold formatted or indentation-sensitive text
       (or, if you just don't feel like escaping quotes and apostrophes). The
       indentation level that begins the block is maintained throughout, so
       you can keep it all aligned with the body of your code.
     </p>
-    <%= code_for('heredocs', 'html') %>
+    <%- @code_for 'heredocs', 'html' %>
     <p>
       Double-quoted block strings, like other double-quoted strings, allow interpolation.
     </p>
@@ -914,7 +872,7 @@ Expressions
       the top of a file. Block comments, which mirror the syntax for block strings,
       are preserved in the generated code.
     </p>
-    <%= code_for('block_comment') %>
+    <%- @code_for 'block_comment' %>
 
     <p>
       <span id="regexes" class="bookmark"></span>
@@ -925,7 +883,7 @@ Expressions
       block regexes are delimited by <tt>///</tt> and go a long way towards making complex
       regular expressions readable. To quote from the CoffeeScript source:
     </p>
-    <%= code_for('heregexes') %>
+    <%- @code_for 'heregexes' %>
 
 
     <h2>
@@ -951,7 +909,7 @@ Expressions
       be made available in the <tt>options</tt> object. Here's a task that uses
       the Node.js API to rebuild CoffeeScript's parser:
     </p>
-    <%= code_for('cake_tasks') %>
+    <%- @code_for 'cake_tasks' %>
     <p>
       If you need to invoke one task before another &mdash; for example, running
       <tt>build</tt> before <tt>test</tt>, you can use the <tt>invoke</tt> function:
