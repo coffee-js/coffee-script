@@ -15,8 +15,19 @@ SourceMap     = require './sourcemap'
 # The current CoffeeScript version number.
 exports.VERSION = '1.6.3'
 
+fileExtensions = ['.coffee', '.litcoffee', '.coffee.md']
+
 # Expose helpers for testing.
 exports.helpers = helpers
+
+# Function wrapper to add source file information to SyntaxErrors thrown by the
+# lexer/parser/compiler.
+withPrettyErrors = (fn) ->
+  (code, options = {}) ->
+    try
+      fn.call @, code, options
+    catch err
+      throw helpers.updateSyntaxError err, code, options.filename
 
 # Compile CoffeeScript code to JavaScript, using the Coffee/Jison compiler.
 #
@@ -27,7 +38,7 @@ exports.helpers = helpers
 # in which case this returns a `{js, v3SourceMap, sourceMap}`
 # object, where sourceMap is a sourcemap.coffee#SourceMap object, handy for doing programatic
 # lookups.
-exports.compile = compile = (code, options = {}) ->
+exports.compile = compile = withPrettyErrors (code, options) ->
   {merge} = helpers
 
   if options.sourceMap
@@ -50,7 +61,10 @@ exports.compile = compile = (code, options = {}) ->
           {noReplace: true})
       newLines = helpers.count fragment.code, "\n"
       currentLine += newLines
-      currentColumn = fragment.code.length - (if newLines then fragment.code.lastIndexOf "\n" else 0)
+      if newLines
+        currentColumn = fragment.code.length - (fragment.code.lastIndexOf("\n") + 1)
+      else
+        currentColumn += fragment.code.length
 
     # Copy the code from each fragment into the final JavaScript.
     js += fragment.code
@@ -68,13 +82,13 @@ exports.compile = compile = (code, options = {}) ->
     js
 
 # Tokenize a string of CoffeeScript code, and return the array of tokens.
-exports.tokens = (code, options) ->
+exports.tokens = withPrettyErrors (code, options) ->
   lexer.tokenize code, options
 
 # Parse a string of CoffeeScript code or an array of lexed tokens, and
 # return the AST. You can then compile it by calling `.compile()` on the root,
 # or traverse it by using `.traverseChildren()` with a callback.
-exports.nodes = (source, options) ->
+exports.nodes = withPrettyErrors (source, options) ->
   if typeof source is 'string'
     parser.parse lexer.tokenize source, options
   else
@@ -84,7 +98,7 @@ exports.nodes = (source, options) ->
 # setting `__filename`, `__dirname`, and relative `require()`.
 exports.run = (code, options = {}) ->
   mainModule = require.main
-  options.sourceMap ?= true
+
   # Set the filename.
   mainModule.filename = process.argv[1] =
     if options.filename then fs.realpathSync(options.filename) else '.'
@@ -97,14 +111,10 @@ exports.run = (code, options = {}) ->
 
   # Compile.
   if not helpers.isCoffee(mainModule.filename) or require.extensions
-    answer = compile(code, options)
-    # Attach sourceMap object to sourceMaps[options.filename] so that
-    # it is accessible by Error.prepareStackTrace.
-    do patchStackTrace
-    sourceMaps[mainModule.filename] = answer.sourceMap
-    mainModule._compile answer.js, mainModule.filename
-  else
-    mainModule._compile code, mainModule.filename
+    answer = compile code, options
+    code = answer.js ? answer
+
+  mainModule._compile code, mainModule.filename
 
 # Compile and evaluate a string of CoffeeScript (in a Node.js-like environment).
 # The CoffeeScript REPL uses this to run the input.
@@ -142,18 +152,29 @@ exports.eval = (code, options = {}) ->
   else
     vm.runInContext js, sandbox
 
-# Load and run a CoffeeScript file for Node, stripping any `BOM`s.
-loadFile = (module, filename) ->
+compileFile = (filename, sourceMap) ->
   raw = fs.readFileSync filename, 'utf8'
   stripped = if raw.charCodeAt(0) is 0xFEFF then raw.substring 1 else raw
-  answer = compile(stripped, {filename, sourceMap: true, literate: helpers.isLiterate filename})
-  sourceMaps[filename] = answer.sourceMap
-  module._compile answer.js, filename
+
+  try
+    answer = compile(stripped, {filename, sourceMap, literate: helpers.isLiterate filename})
+  catch err
+    # As the filename and code of a dynamically loaded file will be different
+    # from the original file compiled with CoffeeScript.run, add that
+    # information to error so it can be pretty-printed later.
+    throw helpers.updateSyntaxError err, stripped, filename
+
+  answer
+
+# Load and run a CoffeeScript file for Node, stripping any `BOM`s.
+loadFile = (module, filename) ->
+  answer = compileFile filename, false
+  module._compile answer, filename
 
 # If the installed version of Node supports `require.extensions`, register
 # CoffeeScript as an extension.
 if require.extensions
-  for ext in ['.coffee', '.litcoffee', '.coffee.md']
+  for ext in fileExtensions
     require.extensions[ext] = loadFile
 
   # Patch Node's module loader to be able to handle mult-dot extensions.
@@ -183,8 +204,9 @@ if require.extensions
 # to fork both CoffeeScript files, and JavaScript files, directly.
 if child_process
   {fork} = child_process
+  binary = require.resolve '../../bin/coffee'
   child_process.fork = (path, args = [], options = {}) ->
-    execPath = if helpers.isCoffee(path) then 'coffee' else null
+    execPath = if helpers.isCoffee(path) then binary else null
     if not Array.isArray args
       args = []
       options = args or {}
@@ -211,7 +233,6 @@ parser.lexer =
     @pos = 0
   upcomingInput: ->
     ""
-
 # Make all the AST nodes visible to the parser.
 parser.yy = require './nodes'
 
@@ -224,39 +245,6 @@ parser.yy.parseError = (message, {token}) ->
   # (from the previous token), so we take the location information directly
   # from the lexer.
   helpers.throwSyntaxError message, parser.lexer.yylloc
-
-# Based on [michaelficarra/CoffeeScriptRedux](http://goo.gl/ZTx1p)
-# NodeJS / V8 have no support for transforming positions in stack traces using
-# sourceMap, so we must monkey-patch Error to display CoffeeScript source
-# positions.
-
-patched = false
-
-# Map of filenames -> sourceMap object.
-sourceMaps = {}
-
-patchStackTrace = ->
-  return if patched
-  patched = true
-  mainModule = require.main
-
-  # (Assigning to a property of the Module object in the normal module cache is
-  # unsuitable, because node deletes those objects from the cache if an
-  # exception is thrown in the module body.)
-
-  Error.prepareStackTrace = (err, stack) ->
-    sourceFiles = {}
-
-    getSourceMapping = (filename, line, column) ->
-      sourceMap = sourceMaps[filename]
-      answer = sourceMap.sourceLocation [line - 1, column - 1] if sourceMap
-      if answer then [answer[0] + 1, answer[1] + 1] else null
-
-    frames = for frame in stack
-      break if frame.getFunction() is exports.run
-      "  at #{formatSourcePosition frame, getSourceMapping}"
-
-    "#{err.name}: #{err.message ? ''}\n#{frames.join '\n'}\n"
 
 # Based on http://v8.googlecode.com/svn/branches/bleeding_edge/src/messages.js
 # Modified to handle sourceMap
@@ -282,10 +270,9 @@ formatSourcePosition = (frame, getSourceMapping) ->
     source = getSourceMapping fileName, line, column
     fileLocation =
       if source
-        "#{fileName}:#{source[0]}:#{source[1]}, <js>:#{line}:#{column}"
+        "#{fileName}:#{source[0]}:#{source[1]}"
       else
         "#{fileName}:#{line}:#{column}"
-
 
   functionName = frame.getFunctionName()
   isConstructor = frame.isConstructor()
@@ -311,4 +298,30 @@ formatSourcePosition = (frame, getSourceMapping) ->
     "#{functionName} (#{fileLocation})"
   else
     fileLocation
+
+# Map of filenames -> sourceMap object.
+sourceMaps = {}
+
+# Generates the source map for a coffee file and stores it in the local cache variable.
+getSourceMap = (filename) ->
+  return sourceMaps[filename] if sourceMaps[filename]
+  return unless path?.extname(filename) in fileExtensions
+  answer = compileFile filename, true
+  sourceMaps[filename] = answer.sourceMap
+
+# Based on [michaelficarra/CoffeeScriptRedux](http://goo.gl/ZTx1p)
+# NodeJS / V8 have no support for transforming positions in stack traces using
+# sourceMap, so we must monkey-patch Error to display CoffeeScript source
+# positions.
+Error.prepareStackTrace = (err, stack) ->
+  getSourceMapping = (filename, line, column) ->
+    sourceMap = getSourceMap filename
+    answer = sourceMap.sourceLocation [line - 1, column - 1] if sourceMap
+    if answer then [answer[0] + 1, answer[1] + 1] else null
+
+  frames = for frame in stack
+    break if frame.getFunction() is exports.run
+    "  at #{formatSourcePosition frame, getSourceMapping}"
+
+  "#{err.name}: #{err.message ? ''}\n#{frames.join '\n'}\n"
 

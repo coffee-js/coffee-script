@@ -24,7 +24,7 @@
         <a href="#usage">用法</a>
         <a href="#literate">Literate CoffeeScript</a>
         <a href="#language">Language Reference</a>
-        <a href="#literals">Literals: Functions, Objects and Arrays</a>
+        <a href="#literals">函数, 对象, 数组</a>
         <a href="#lexical-scope">Lexical Scoping and Variable Safety</a>
         <a href="#conditionals">If, Else, Unless, and Conditional Assignment</a>
         <a href="#splats">Splats...</a>
@@ -504,9 +504,8 @@ Expressions
 
     <p>
       <span id="literals" class="bookmark"></span>
-      <b class="header">Functions</b>
-      Functions are defined by an optional list of parameters in parentheses,
-      an arrow, and the function body. The empty function looks like this:
+      <b class="header">函数</b>
+      函数由圆括号（其中包含可选的参数）、箭头符号和函数主体组成。这是一个空函数：
       <tt>-></tt>
     </p>
     <div class='code'><pre><code><span class="function"><span class="title">square</span></span> = (x) -&gt; x * x
@@ -531,8 +530,7 @@ cube = function(x) {
 };
 ;alert(cube(5));'>run: cube(5)</div><br class='clear' /></div>
     <p>
-      Functions may also have default values for arguments. Override the default
-      value by passing a non-null argument.
+      函数的参数可以有默认值，如果传入一个不为<tt>null</tt>的值，默认值就会被覆盖。
     </p>
     <div class='code'><pre><code><span class="function"><span class="title">fill</span></span> = (container, liquid = <span class="string">"coffee"</span>) -&gt;
   <span class="string">"Filling the <span class="subst">#{container}</span> with <span class="subst">#{liquid}</span>..."</span>
@@ -562,11 +560,8 @@ fill = function(container, liquid) {
 
     <p>
       <span id="objects_and_arrays" class="bookmark"></span>
-      <b class="header">Objects and Arrays</b>
-      The CoffeeScript literals for objects and arrays look very similar to
-      their JavaScript cousins. When each property is listed on its own line,
-      the commas are optional. Objects may be created using indentation instead
-      of explicit braces, similar to <a href="http://yaml.org">YAML</a>.
+      <b class="header">对象和数组</b>
+      在CoffeeScrips中，对象和数组与原生JavaScript的写法很接近。另外，如果它们的每一个值被写在单独一行里，就可以省略逗号。对象可以通过缩进来创建，而不仅仅是大括号<tt>{}</tt>，这和<a href="http://yaml.org">YAML</a>的写法有点相近。
     </p>
     <div class='code'><pre><code>song = [<span class="string">"do"</span>, <span class="string">"re"</span>, <span class="string">"mi"</span>, <span class="string">"fa"</span>, <span class="string">"so"</span>]
 
@@ -631,10 +626,7 @@ kids = {
 };
 ;alert(song.join(" ... "));'>run: song.join(" ... ")</div><br class='clear' /></div>
     <p>
-      In JavaScript, you can't use reserved words, like <tt>class</tt>, as properties
-      of an object, without quoting them as strings. CoffeeScript notices reserved words
-      used as keys in objects and quotes them for you, so you don't have to worry
-      about it (say, when using jQuery).
+      在JavaScript中，如果不加引号就不能把保留字（如<tt>class</tt>）作为对象的属性名，然而CoffeeScript会识别这些保留字并且自动为它们加上引号，因此你不用担心它们会出错（比如在使用jQuery的时候）。
     </p>
     <div class='code'><pre><code>$(<span class="string">'.account'</span>).attr class: <span class="string">'active'</span>
 
@@ -2414,6 +2406,11 @@ task('build:parser', 'rebuild the Jison parser', function(options) {
         <a href="https://efendibooks.com/minibooks/testing-with-coffeescript">Testing with CoffeeScript</a>
         is a succinct and freely downloadable guide to building testable
         applications with CoffeeScript and Jasmine.
+      </li>
+      <li>
+        <a href="http://www.packtpub.com/coffeescript-application-development/book">CoffeeScript Application Development</a>
+        is a new book from Packt Publishing that introduces CoffeeScript while 
+        walking through the process of building a demonstration web application.
       </li>
     </ul>
 
