@@ -522,7 +522,6 @@ Expressions
     <p>
       <span id="slices" class="bookmark"></span>
       <b class="header">Array Slicing and Splicing with Ranges</b>
-      Ranges can also be used to extract slices of arrays.
       区间也能被用来获取数组切片。带有两个点的区间是包含性的（包含结尾）；
       带有三个点的区间不包含结尾。切片目录拥有有用的默认值。第一个缺省的索引值是0，
       第二个是数组的大小。
@@ -544,9 +543,6 @@ Expressions
     </p>
     <%= codeFor('expressions', 'eldest') %>
     <p>
-      Even though functions will always return their final value, it's both possible
-      and encouraged to return early from a function body writing out the explicit
-      return (<tt>return value</tt>), when you know that you're done.
       尽管（CoffeeScript）函数总会返回它们的最终值，但当你清楚自己所做的时，明确写下
       return语句(<tt>return value</tt>)，从函数体中提前返回也是合理和被提倡的。
     </p>
