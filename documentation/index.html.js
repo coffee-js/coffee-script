@@ -580,11 +580,15 @@ Expressions
       as part of an expression in CoffeeScript, are converted into expressions
       by wrapping them in a closure. This lets you do useful things, like assign
       the result of a comprehension to a variable:
+      那些在JavaScript下被当作纯粹语句的元素，当被应用为一个CoffeeScript表达式的
+      一部分时，它们会被转换为一个闭包中的表达式。这让你能做些有用的事情，比如
+      将一个推导式（comprehension）的结果赋给一个变量。
     </p>
     <%= codeFor('expressions_comprehension', 'globals') %>
     <p>
       As well as silly things, like passing a <b>try/catch</b> statement directly
       into a function call:
+      同样简单的事，比如直接向一个函数调用中传入一个<b>try/catch</b>语句。
     </p>
     <%= codeFor('expressions_try', true) %>
     <p>
@@ -592,6 +596,9 @@ Expressions
       converted into expressions, namely <tt>break</tt>, <tt>continue</tt>,
       and <tt>return</tt>. If you make use of them within a block of code,
       CoffeeScript won't try to perform the conversion.
+      有些JavaScript语句不能被有目的地转换成表达式，也就是指<tt>break</tt>,
+      <tt>continue</tt>，和 <tt>return</tt>。如果你在代码块里用到它们，
+      CoffeeScript不会执行转译。
     </p>
 
     <p>
