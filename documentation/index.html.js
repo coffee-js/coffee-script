@@ -518,6 +518,9 @@ Expressions
       and all the generated functions don't just share the final values. CoffeeScript
       provides the <tt>do</tt> keyword, which immediately invokes a passed function,
       forwarding any arguments.
+      当使用JavaScript的循环创建函数时，为了确保循环的变量被隐藏，同时所有
+      函数都不会共享它的最终值，通常会在该函数中插入一个闭包。CoffeeScript
+      提供了<tt>do</tt> 关键字, 可以直接地调用一个传入的函数，并转发参数。
     </p>
     <%= codeFor('do') %>
 
@@ -529,15 +532,20 @@ Expressions
       with three dots (<tt>3...6</tt>), the range excludes the end (<tt>3, 4, 5</tt>).
       Slices indices have useful defaults. An omitted first index defaults to
       zero and an omitted second index defaults to the size of the array.
+      范围也能被用来获取数组切片。带有两个点的范围是包含性的（包含结尾）；
+      带有三个点的范围不包含结尾。切片目录拥有有用的默认值。第一个缺省的索引值是0，
+      第二个是数组的大小。
     </p>
     <%= codeFor('slices', 'middle') %>
     <p>
       The same syntax can be used with assignment to replace a segment of an array
       with new values, splicing it.
+      用同样的语法，可以将一个新的数组通过赋值来替换另一个数组的一部分，或两者进行连接。
     </p>
     <%= codeFor('splices', 'numbers') %>
     <p>
       Note that JavaScript strings are immutable, and can't be spliced.
+      注意JavaScript的字符串是不可变的，也不能被结合（spliced）。
     </p>
     <p>
       <span id="expressions" class="bookmark"></span>
@@ -548,16 +556,23 @@ Expressions
       language can be used as expressions. Watch how the <tt>return</tt> gets
       pushed down into each possible branch of execution in the function
       below.
+      你也许已经注意到，尽管我们没有给CoffeeScript函数添加return语句，但还是返回了
+      它们的最终值。CoffeeScript编译器试图确保CoffeeScript语境下的所有语句能用作表达式。
+      观察如下函数中的<tt>return</tt>是如何被推进到每一个可能的执行分支的。
     </p>
     <%= codeFor('expressions', 'eldest') %>
     <p>
       Even though functions will always return their final value, it's both possible
       and encouraged to return early from a function body writing out the explicit
       return (<tt>return value</tt>), when you know that you're done.
+      尽管（CoffeeScript）函数总会返回它们的最终值，但当你清楚自己做了什么时，明确地使用
+      return语句(<tt>return value</tt>)从函数体中提前返回也是合理和被提倡的。
     </p>
     <p>
       Because variable declarations occur at the top of scope, assignment can
       be used within expressions, even for variables that haven't been seen before:
+      因为变量声明是在顶层作用域，使得在表达式里能进行赋值操作，甚至被赋值的变量之前
+      从未出现过。
     </p>
     <%= codeFor('expressions_assignment', 'six') %>
     <p>
@@ -565,11 +580,15 @@ Expressions
       as part of an expression in CoffeeScript, are converted into expressions
       by wrapping them in a closure. This lets you do useful things, like assign
       the result of a comprehension to a variable:
+      那些在JavaScript下被当作纯粹语句的元素，当被应用为一个CoffeeScript表达式的
+      一部分时，它们会被转换为一个闭包中的表达式。这让你能做些有用的事情，比如
+      将一个推导式（comprehension）的结果赋给一个变量。
     </p>
     <%= codeFor('expressions_comprehension', 'globals') %>
     <p>
       As well as silly things, like passing a <b>try/catch</b> statement directly
       into a function call:
+      同样简单的事，比如直接向一个函数调用中传入一个<b>try/catch</b>语句。
     </p>
     <%= codeFor('expressions_try', true) %>
     <p>
@@ -577,6 +596,9 @@ Expressions
       converted into expressions, namely <tt>break</tt>, <tt>continue</tt>,
       and <tt>return</tt>. If you make use of them within a block of code,
       CoffeeScript won't try to perform the conversion.
+      有些JavaScript语句不能被有目的地转换成表达式，也就是指<tt>break</tt>,
+      <tt>continue</tt>，和 <tt>return</tt>。如果你在代码块里用到它们，
+      CoffeeScript不会执行转译。
     </p>
 
     <p>
