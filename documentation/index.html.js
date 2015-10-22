@@ -563,7 +563,7 @@ Expressions
     <%= codeFor('expressions_try', true) %>
     <p>
       有一些 JavaScript 语句是不能编译到表达式的对应的语义的, 比如 <tt>break</tt>, <tt>continue</tt> 和 <tt>return</tt>.
-      如果你的代码当中用到了它们, CoffeeScript 是步骤尝试去进行转换的.
+      如果你的代码当中用到了它们, CoffeeScript 是不会尝试去进行转换的.
     </p>
 
     <p>
@@ -652,7 +652,7 @@ Expressions
     <p>
       <span id="classes" class="bookmark"></span>
       <b class="header">class, 继承, super</b>
-      JavaScript 的原型集成有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承比如:
+      JavaScript 的原型继承有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承比如:
       <a href="http://code.google.com/p/base2/">Base2</a>,
       <a href="http://prototypejs.org/">Prototype.js</a>,
       <a href="http://jsclass.jcoglan.com/">JS.Class</a>.
