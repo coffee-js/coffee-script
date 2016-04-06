@@ -571,7 +571,7 @@ Expressions
       <b class="header">操作符和 aliase</b>
       由于操作符 <tt>==</tt> 常常带来不准确的约束, 不容易达到效果, 而且跟其他语言当中意思不一致,
       CoffeeScript 会把 <tt>==</tt> 编译为 <tt>===</tt>, 把 <tt>!=</tt> 变异为 <tt>!==</tt>.
-      此外, <tt>is</tt> 编译我 <tt>===</tt>, 而 <tt>isnt</tt> 编译为 <tt>!==</tt>.
+      此外, <tt>is</tt> 编译为 <tt>===</tt>, 而 <tt>isnt</tt> 编译为 <tt>!==</tt>.
     </p>
     <p>
       <tt>not</tt> 可以作为 <tt>!</tt> 的 alias 使用.
@@ -652,7 +652,7 @@ Expressions
     <p>
       <span id="classes" class="bookmark"></span>
       <b class="header">class, 继承, super</b>
-      JavaScript 的原型继承有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承比如:
+      JavaScript 的原型继承有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承, 比如:
       <a href="http://code.google.com/p/base2/">Base2</a>,
       <a href="http://prototypejs.org/">Prototype.js</a>,
       <a href="http://jsclass.jcoglan.com/">JS.Class</a>.
