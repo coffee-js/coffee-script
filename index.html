@@ -1225,7 +1225,7 @@ alert((function() {
 ;'>run</div><br class='clear' /></div>
     <p>
       有一些 JavaScript 语句是不能编译到表达式的对应的语义的, 比如 <tt>break</tt>, <tt>continue</tt> 和 <tt>return</tt>.
-      如果你的代码当中用到了它们, CoffeeScript 是步骤尝试去进行转换的.
+      如果你的代码当中用到了它们, CoffeeScript 是不会尝试去进行转换的.
     </p>
 
     <p>
@@ -1233,7 +1233,7 @@ alert((function() {
       <b class="header">操作符和 aliase</b>
       由于操作符 <tt>==</tt> 常常带来不准确的约束, 不容易达到效果, 而且跟其他语言当中意思不一致,
       CoffeeScript 会把 <tt>==</tt> 编译为 <tt>===</tt>, 把 <tt>!=</tt> 变异为 <tt>!==</tt>.
-      此外, <tt>is</tt> 编译我 <tt>===</tt>, 而 <tt>isnt</tt> 编译为 <tt>!==</tt>.
+      此外, <tt>is</tt> 编译为 <tt>===</tt>, 而 <tt>isnt</tt> 编译为 <tt>!==</tt>.
     </p>
     <p>
       <tt>not</tt> 可以作为 <tt>!</tt> 的 alias 使用.
@@ -1390,7 +1390,7 @@ zip = <span class="keyword">typeof</span> lottery.drawWinner === <span class="st
     <p>
       <span id="classes" class="bookmark"></span>
       <b class="header">class, 继承, super</b>
-      JavaScript 的原型集成有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承比如:
+      JavaScript 的原型继承有点烧脑, 存在大量的类库用于在 JavaScript 的原型之上实现更清晰的 class 继承, 比如:
       <a href="http://code.google.com/p/base2/">Base2</a>,
       <a href="http://prototypejs.org/">Prototype.js</a>,
       <a href="http://jsclass.jcoglan.com/">JS.Class</a>.
@@ -1757,7 +1757,7 @@ tim = new Person({
       <span id="fat-arrow" class="bookmark"></span>
       <b class="header">函数绑定</b>
       JavaScript 当中 <tt>this</tt> 关键字被动态地设定为当前函数挂载所在的对象上.
-      如果你把函数当作回调, 或者挂载到别的对象, 那么原先的 <tt>this</tt> 就丢失了.
+      如果你爸函数当作回调, 或者挂载到别的对象, 那么原先的 <tt>this</tt> 就丢失了.
       如果你不了解这个行为,
       If you're not familiar with this behavior,
       <a href="http://www.digital-web.com/articles/scope_in_javascript/">this Digital Web article</a>
